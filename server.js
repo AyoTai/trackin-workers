@@ -47,26 +47,71 @@ const addEmployee = (roleChoices, managerChoices) => [
     {
       type: 'input',
       name: 'first_name',
-      message: "What/'s the employee's first name?",
+      message: "What\'s the employee's first name?",
       validate: input => !!input
     },
     {
       type: 'input',
       name: 'last_name',
-      message: "What/'s the employee's last name?",
+      message: "What\'s the employee's last name?",
       validate: input => !!input
     },
     {
       type: 'list',
       name: 'role',
-      message: "What/'s the employee's role?",
+      message: "What\'s the employee's role?",
       choices: roleChoices
     },
     {
       type: 'list',
       name: 'manager',
-      message: "What/'s the employee's manager?",
+      message: "What\'s the employee's manager?",
       choices: managerChoices
     }
 ];
+
+const newRole = (departmentsChoices) => [
+    {
+      type: 'input',
+      name: 'title',
+      message: 'What\'s the title of this role?',
+      validate: input => !!input
+    },
+    {
+      type: 'input',
+      name: 'salary',
+      message: 'How much for the salary?',
+      validate: input => !!input
+    },
+    {
+      type: 'list',
+      name: 'department',
+      message: 'Which department will it belong to?',
+      choices: departmentsChoices
+    }
+];
+
+function viewDepartments() {
+    connection.query('SELECT * FROM departments', (err, res) => {
+        if (err) throw err;
+        let table = consTable.getTable(res);
+        console.log(table);
+    });
+};
+
+function viewRoles() {
+    connection.query('SELECT * FROM roles', (err, res) => {
+        if (err) throw err;
+        let table = consTable.getTable(res);
+        console.log(table);
+    });
+};
+
+function viewEmployees() {
+    connection.query('SELECT * FROM employees', (err, res) => {
+        if (err) throw err;
+        let table = consTable.getTable(res);
+        console.log(table);
+    });
+};
 
