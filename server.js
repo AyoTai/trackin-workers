@@ -35,7 +35,6 @@ const choices = [
     }
 ];
 
-// Prompts for adding
 const newDepartment = [
     {
       type: 'input',
@@ -98,7 +97,7 @@ function addDepartment(answers) {
   const addingDb = `INSERT INTO departments (name) VALUES (?)`;
 
   connection.query(addingDb, answers, (err) => {
-      if (err) throw err;
+    if (err) throw err;
   });
 };
 
@@ -106,7 +105,7 @@ function addEmployee(answers) {
   const addingDb = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
 
   connection.query(addingDb, answers, (err) => {
-      if (err) throw err;
+    if (err) throw err;
   });
 };
 
@@ -114,33 +113,41 @@ function addRoles(answers) {
   const addingDb = `INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)`;
 
   connection.query(addingDb, answers, (err) => {
-      if (err) throw err;
+    if (err) throw err;
   });
 };
 
 // Viewing Functions
 function viewDepartments() {
     connection.query('SELECT * FROM departments', (err, res) => {
-        if (err) throw err;
-        let table = consTable.getTable(res);
-        console.log(table);
+      if (err) throw err;
+      let table = consTable.getTable(res);
+      console.log(table);
     });
 };
 
 function viewRoles() {
     connection.query('SELECT * FROM roles', (err, res) => {
-        if (err) throw err;
-        let table = consTable.getTable(res);
-        console.log(table);
+      if (err) throw err;
+      let table = consTable.getTable(res);
+      console.log(table);
     });
 };
 
 function viewEmployees() {
     connection.query('SELECT * FROM employees', (err, res) => {
-        if (err) throw err;
-        let table = consTable.getTable(res);
-        console.log(table);
+      if (err) throw err;
+      let table = consTable.getTable(res);
+      console.log(table);
     });
+};
+
+function viewManagers() {
+  connection.query('SELECT * FROM managers', (err, res) => {
+    if (err) throw err;
+    let table = consTable.getTable(res);
+    console.log(table);
+  });
 };
 
 // Updating Employees
@@ -174,7 +181,7 @@ const updateEmployeeManager = (employeesChoices, managerChoices) => [
   }
 ];
 
-function updateEmployeeRole(id) {
+function updateEmployeeRoleDb(id) {
   const updateDb = `UPDATE employees
   SET role_id = ?
   WHERE id = ?`;
@@ -184,7 +191,7 @@ function updateEmployeeRole(id) {
   });
 };
 
-function updateEmployeeManager(id) {
+function updateEmployeeManagerDb(id) {
   const updateDb = `UPDATE employees
   SET manager_id = ?
   WHERE id = ?`;
@@ -229,3 +236,178 @@ function removeRole(id) {
   });
 };
 
+
+function promptViewByDepartment() {
+  viewDepartments(rows => {
+    const departmentsChoices = rows.map(row => ({
+      name: row.name,
+      value: row.id
+    }));
+
+    viewEmployees(rows => {
+      inquirer.prompt(viewByDepartment(departmentsChoices))
+        .then(data => {
+          departmentsChoices.map(dept => {
+            if (dept.value === data.department) {
+              let department = [];
+              rows.map(row => {
+                if (row.department === dept.name) {
+                  department.push(row);
+                };
+              });
+              
+              if (department.length !== 0) console.table(department);
+              else console.log('No one is here!');
+
+              selection();
+            };
+          });
+        });
+    });
+  });
+};
+
+function promptViewByManager() {
+  viewManagers(rows => {
+    const managerChoices = rows.map(row => ({
+      name: row.name,
+      value: row.id
+    }));
+
+    viewEmployees(rows => {
+      inquirer.prompt(viewByManager(managerChoices))
+        .then(data => {
+          managerChoices.map(manager => {
+            if (manager.value === data.manager) {
+              let manager = [];
+              rows.map(row => {
+                if (row.manager === manager.name) {
+                  manager.push(row);
+                };
+              });
+              
+              if (manager.length !== 0) console.table(manager);
+              else console.log('No one is here!');
+
+              selection();
+            };
+          });
+        });
+    });
+  });
+};
+
+function promptAddEmployee() {
+  viewRoles(rows => {
+    const roleChoices = rows.map(row => ({
+      name: row.title,
+      value: row.id
+    }));
+
+    viewManagers(rows => {
+      const managerChoices = rows.map(row => ({
+        name: row.name,
+        value: row.id
+      }));
+      inquirer.prompt(newEmployees(roleChoices, managerChoices))
+        .then(data => {
+          const params = [
+            data.first_name,
+            data.last_name,
+            data.role,
+            data.manager
+          ];
+
+          addEmployee(params);
+          console.log(`Added ${data.first_name} ${data.last_name} Successfully!`);
+          selection();
+        });
+    });
+  });
+};
+
+function promptAddRole() {
+  viewDepartments(rows => {
+    const departmentsChoices = rows.map(row => ({
+      name: row.name,
+      value: row.id
+    }));
+
+    inquirer.prompt(newRoleA(departmentsChoices))
+      .then(data => {
+        const params = [
+          data.title,
+          data.salary,
+          data.department
+        ];
+
+        addRoles(params);
+        console.log(`Added ${data.title} Successfully!`);
+        selection();
+      });
+  });
+};
+
+function promptUpdateEmployeeRole() {
+  viewEmployees(rows => {
+    const employeesChoices = rows.map(row => ({
+      name: `${row.first_name} ${row.last_name}`,
+      value: row.id
+    }));
+
+    viewRoles(rows => {
+      const roleChoices = rows.map(row => ({
+        name: row.title,
+        value: row.id
+      }));
+
+      inquirer.prompt(updateEmployeeRole(employeesChoices, roleChoices))
+        .then(data => {
+          const params = [
+            data.role,
+            data.name
+          ];
+
+          updateEmployeeRoleDb(params);
+          employeesChoices.map(role => {
+            if (role.value === data.role)
+              console.log(`Updated the Role of ${role.name} Successfully!`);
+          });
+
+          selection();
+        });
+    });
+  });
+};
+
+function promptUpdateEmployeeManager() {
+  viewEmployees(rows => {
+    const employeesChoices = rows.map(row => ({
+      name: `${row.first_name} ${row.last_name}`,
+      value: row.id
+    }));
+
+    viewManagers(rows => {
+      const managerChoices = rows.map(row => ({
+        name: row.name,
+        value: row.id
+      }));
+
+      inquirer.prompt(updateEmployeeManager(employeesChoices, managerChoices))
+        .then(data => {
+          const params = [
+            data.manager,
+            data.name
+          ];
+
+          updateEmployeeManagerDb(params);
+          employeesChoices.map(role => {
+            if (role.value === data.name)
+              console.log(`Updated the Manager of ${role.name} Successfully!`);
+          });
+
+          selection();
+        });
+    });
+  });
+};
