@@ -14,7 +14,7 @@ function start() {
 const choices = [
     {
       type: 'list',
-      name: 'action',
+      name: 'options',
       message: 'Hi! What would you like to do?',
       choices: [
         'View All Employees',
@@ -49,25 +49,25 @@ const newEmployees = (roleChoices, managerChoices) => [
     {
       type: 'input',
       name: 'first_name',
-      message: "What\'s the employee's first name?",
+      message: "What's the employee's first name?",
       validate: input => !!input
     },
     {
       type: 'input',
       name: 'last_name',
-      message: "What\'s the employee's last name?",
+      message: "What's the employee's last name?",
       validate: input => !!input
     },
     {
       type: 'list',
       name: 'role',
-      message: "What\'s the employee's role?",
+      message: "What's the employee's role?",
       choices: roleChoices
     },
     {
       type: 'list',
       name: 'manager',
-      message: "What\'s the employee's manager?",
+      message: "What's the employee's manager?",
       choices: managerChoices
     }
 ];
@@ -76,7 +76,7 @@ const newRole = (departmentsChoices) => [
     {
       type: 'input',
       name: 'title',
-      message: 'What\'s the title of this role?',
+      message: "What's the title of this role?",
       validate: input => !!input
     },
     {
@@ -100,7 +100,7 @@ function addDepartment(answers) {
   connection.query(addingDb, answers, (err) => {
       if (err) throw err;
   });
-}
+};
 
 function addEmployee(answers) {
   const addingDb = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
@@ -108,7 +108,7 @@ function addEmployee(answers) {
   connection.query(addingDb, answers, (err) => {
       if (err) throw err;
   });
-}
+};
 
 function addRoles(answers) {
   const addingDb = `INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)`;
@@ -116,7 +116,7 @@ function addRoles(answers) {
   connection.query(addingDb, answers, (err) => {
       if (err) throw err;
   });
-}
+};
 
 // Viewing Functions
 function viewDepartments() {
@@ -143,4 +143,89 @@ function viewEmployees() {
     });
 };
 
-// 
+// Updating Employees
+const updateEmployeeRole = (employeesChoices, roleChoices) => [
+  {
+    type: 'list',
+    name: 'name',
+    message: "Which employee do you want to update?",
+    choices: employeesChoices
+  },
+  {
+    type: 'list',
+    name: 'role',
+    message: "What is the employee\'s role?",
+    choices: roleChoices
+  }
+];
+
+const updateEmployeeManager = (employeesChoices, managerChoices) => [
+  {
+    type: 'list',
+    name: 'name',
+    message: "Which employee do you want to update?",
+    choices: employeesChoices
+  },
+  {
+    type: 'list',
+    name: 'manager',
+    message: "Who is the employee's manager?",
+    choices: managerChoices
+  }
+];
+
+function updateEmployeeRole(id) {
+  const updateDb = `UPDATE employees
+  SET role_id = ?
+  WHERE id = ?`;
+
+  connection.query(updateDb, id, (err) => {
+      if (err) throw err;
+  });
+};
+
+function updateEmployeeManager(id) {
+  const updateDb = `UPDATE employees
+  SET manager_id = ?
+  WHERE id = ?`;
+
+  connection.query(updateDb, id, (err) => {
+      if (err) throw err;
+  });
+};
+
+// View employee by Manager
+const viewByManager = (managersChoices) => [
+  {
+    type: 'list',
+    name: 'manager',
+    message: 'Which employee would you like to view?',
+    choices: managersChoices
+  }
+];
+
+// Deleting Functions
+function removeDepartment(id) {
+  const delDb = `DELETE FROM departments WHERE id = ?`;
+
+  connection.query(delDb, id, (err) => {
+      if (err) throw err;
+  });
+}
+
+function removeEmployee(id) {
+  const delDb = `DELETE FROM employees WHERE id = ?`;
+
+  connection.query(delDb, id, (err) => {
+      if (err) throw err;
+  });
+};
+
+function removeRole(id) {
+  const delDb = `DELETE FROM roles WHERE id = ?`;
+
+  connection.query(delDb, id, (err) => {
+      if (err) throw err;
+  });
+};
+
