@@ -5,8 +5,9 @@ const consTable = require('console.table');
 
 // Starting Function
 function start() {
-    connection.connect(err => {
+    connection.connect((err) => {
       if (err) throw err;
+      console.log('Connected!');
       selection();
     });
 };
@@ -90,6 +91,34 @@ const newRole = (departmentsChoices) => [
       message: 'Which department will it belong to?',
       choices: departmentsChoices
     }
+];
+
+//Prompts to remove
+const employees = (employeesChoices) => [
+  {
+    type: 'list',
+    name: 'employee',
+    message: 'Who would you like to delete?',
+    choices: employeesChoices
+  }
+];
+
+const roles = (rolesChoices) => [
+  {
+    type: 'list',
+    name: 'role',
+    message: 'What role would you like to delete?',
+    choices: rolesChoices
+  }
+];
+
+const departments = (departmentsChoices) => [
+  {
+    type: 'list',
+    name: 'department',
+    message: 'Which department would you like to erase?',
+    choices: departmentsChoices
+  }
 ];
 
 // Adding Functions
@@ -236,7 +265,7 @@ function removeRole(id) {
   });
 };
 
-
+//Prompts to View
 function promptViewByDepartment() {
   viewDepartments(rows => {
     const departmentsChoices = rows.map(row => ({
@@ -297,6 +326,19 @@ function promptViewByManager() {
   });
 };
 
+//Prompt to Add
+function promptAddDepartment() {
+  inquirer.prompt(newDepartment).then(data => {
+    const newDepart = [
+      data.department
+    ];
+
+    addDepartment(newDepart);
+    console.log(`${newDepart} has been added!`);
+    selection();
+  });
+};
+
 function promptAddEmployee() {
   viewRoles(rows => {
     const roleChoices = rows.map(row => ({
@@ -333,7 +375,7 @@ function promptAddRole() {
       value: row.id
     }));
 
-    inquirer.prompt(newRoleA(departmentsChoices))
+    inquirer.prompt(newRole(departmentsChoices))
       .then(data => {
         const params = [
           data.title,
@@ -348,6 +390,7 @@ function promptAddRole() {
   });
 };
 
+// Prompt to Update
 function promptUpdateEmployeeRole() {
   viewEmployees(rows => {
     const employeesChoices = rows.map(row => ({
@@ -411,3 +454,154 @@ function promptUpdateEmployeeManager() {
     });
   });
 };
+
+//Prompts to Delete
+function promptRemoveDepartment() {
+  viewDepartments(rows => {
+    const departmentsChoices = rows.map(row => ({
+      name: row.name,
+      value: row.id
+    }));
+
+    inquirer.prompt(departments(departmentsChoices))
+      .then(data => {
+        const params = [
+          data.department
+        ];
+
+        removeDepartment(params);
+        departmentsChoices.map(depart => {
+          if (depart.value === data.department)
+            console.log(`You have erased ${depart.name} from Departments!`);
+        });
+        selection();
+      });
+  });
+};
+
+function promptRemoveRole() {
+  viewRoles(rows => {
+    const rolesChoices = rows.map(row => ({
+      name: row.title,
+      value: row.id
+    }));
+
+    inquirer.prompt(roles(rolesChoices))
+      .then(data => {
+        const params = [
+          data.role
+        ];
+
+        removeRole(params);
+        rolesChoices.map(role => {
+          if (role.value === data.role)
+            console.log(`You have removed ${role.name} from Roles!`);
+        });
+        selection();
+      });
+  });
+};
+
+function promptRemoveEmployee() {
+  viewEmployees(rows => {
+    const employeesChoices = rows.map(row => ({
+      name: `${row.first_name} ${row.last_name}`,
+      value: row.id
+    }));
+    inquirer.prompt(employees(employeesChoices))
+      .then(data => {
+        const params = [
+          data.employee
+        ];
+
+        removeEmployee(params);
+        employeesChoices.map(emp => {
+          if (emp.value === data.employee)
+            console.log(`You have removed ${emp.name} from Employees!`);
+        });
+        selection();
+      });
+  });
+};
+
+async function selection() {
+  const { options } = await inquirer.prompt(choices);
+  switch (options) {
+    case "That's it!":
+      break;
+
+    case 'View All Employees':
+      viewEmployees(rows => {
+        console.table(rows);
+        selection();
+      });
+      break;
+
+    case 'View All Employees By Department':
+      promptViewByDepartment();
+      break;
+
+    case 'View All Employees By Manager':
+      promptViewByManager();
+      break;
+
+    case 'View All Departments':
+      viewDepartments(rows => {
+        const newDept = rows.map((row) =>
+        ({
+          Departments: row.name
+        }));
+        console.table(newDept);
+        selection();
+      });
+      break;
+
+    case 'View All Roles':
+      viewRoles(rows => {
+        const newRoles = rows.map((row) =>
+        ({
+          Roles: row.title,
+          Salary: row.salary,
+          Department: row.department
+        }));
+
+        console.table(newRoles);
+        selection();
+      });
+      break;
+
+    case 'Add Employee':
+      promptAddEmployee();
+      break;
+
+    case 'Remove Employee':
+      promptRemoveEmployee();
+      break;
+
+    case 'Update Employee Role':
+      promptUpdateEmployeeRole();
+      break;
+
+    case 'Update Employee Manager':
+      promptUpdateEmployeeManager();
+      break;
+
+    case 'Add Role':
+      promptAddRole();
+      break;
+
+    case 'Remove Role':
+      promptRemoveRole();
+      break;
+
+    case 'Add Department':
+      promptAddDepartment();
+      break;
+
+    case 'Remove Department':
+      promptRemoveDepartment();
+      break;
+  };
+};
+
+start();

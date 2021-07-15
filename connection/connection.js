@@ -1,6 +1,6 @@
 const mysql = require('mysql');
 
-const connection = mysql.createconnection({
+const connection = mysql.createConnection({
     host: 'localhost',
     port: 3001,
     user: process.env.DB_USER,
