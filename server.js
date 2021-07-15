@@ -1,8 +1,9 @@
+// Imports
 const connection = require('./connection/connection');
 const inquire = require('inquirer');
 const consTable = require('console.table');
 
-
+// Starting Function
 function start() {
     connection.connect(err => {
       if (err) throw err;
@@ -34,6 +35,7 @@ const choices = [
     }
 ];
 
+// Prompts for adding
 const newDepartment = [
     {
       type: 'input',
@@ -43,7 +45,7 @@ const newDepartment = [
     }
 ];
 
-const addEmployee = (roleChoices, managerChoices) => [
+const newEmployees = (roleChoices, managerChoices) => [
     {
       type: 'input',
       name: 'first_name',
@@ -91,6 +93,32 @@ const newRole = (departmentsChoices) => [
     }
 ];
 
+// Adding Functions
+function addDepartment(answers) {
+  const addingDb = `INSERT INTO departments (name) VALUES (?)`;
+
+  connection.query(addingDb, answers, (err) => {
+      if (err) throw err;
+  });
+}
+
+function addEmployee(answers) {
+  const addingDb = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
+
+  connection.query(addingDb, answers, (err) => {
+      if (err) throw err;
+  });
+}
+
+function addRoles(answers) {
+  const addingDb = `INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)`;
+
+  connection.query(addingDb, answers, (err) => {
+      if (err) throw err;
+  });
+}
+
+// Viewing Functions
 function viewDepartments() {
     connection.query('SELECT * FROM departments', (err, res) => {
         if (err) throw err;
@@ -115,3 +143,4 @@ function viewEmployees() {
     });
 };
 
+// 
