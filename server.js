@@ -1,16 +1,15 @@
 // Imports
-const connection = require('./connection/connection');
-const inquire = require('inquirer');
+const mysql = require('mysql');
+const inquirer = require('inquirer');
 const consTable = require('console.table');
 
-// Starting Function
-function start() {
-    connection.connect((err) => {
-      if (err) throw err;
-      console.log('Connected!');
-      selection();
-    });
-};
+const connection = mysql.createConnection({
+  host: 'localhost',
+  port:8889,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+});
 
 const choices = [
     {
@@ -126,7 +125,9 @@ function addDepartment(answers) {
   const addingDb = `INSERT INTO departments (name) VALUES (?)`;
 
   connection.query(addingDb, answers, (err) => {
-    if (err) throw err;
+    if (err) {
+      console.log(err)
+    };
   });
 };
 
@@ -134,7 +135,9 @@ function addEmployee(answers) {
   const addingDb = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
 
   connection.query(addingDb, answers, (err) => {
-    if (err) throw err;
+    if (err) {
+      console.log(err)
+    };
   });
 };
 
@@ -142,14 +145,18 @@ function addRoles(answers) {
   const addingDb = `INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)`;
 
   connection.query(addingDb, answers, (err) => {
-    if (err) throw err;
+    if (err) {
+      console.log(err)
+    };
   });
 };
 
 // Viewing Functions
 function viewDepartments() {
     connection.query('SELECT * FROM departments', (err, res) => {
-      if (err) throw err;
+      if (err) {
+        console.log(err)
+      };
       let table = consTable.getTable(res);
       console.log(table);
     });
@@ -157,7 +164,9 @@ function viewDepartments() {
 
 function viewRoles() {
     connection.query('SELECT * FROM roles', (err, res) => {
-      if (err) throw err;
+      if (err) {
+        console.log(err)
+      };
       let table = consTable.getTable(res);
       console.log(table);
     });
@@ -165,7 +174,9 @@ function viewRoles() {
 
 function viewEmployees() {
     connection.query('SELECT * FROM employees', (err, res) => {
-      if (err) throw err;
+      if (err) {
+        console.log(err)
+      };
       let table = consTable.getTable(res);
       console.log(table);
     });
@@ -173,7 +184,9 @@ function viewEmployees() {
 
 function viewManagers() {
   connection.query('SELECT * FROM managers', (err, res) => {
-    if (err) throw err;
+    if (err) {
+      console.log(err)
+    };
     let table = consTable.getTable(res);
     console.log(table);
   });
@@ -216,7 +229,9 @@ function updateEmployeeRoleDb(id) {
   WHERE id = ?`;
 
   connection.query(updateDb, id, (err) => {
-      if (err) throw err;
+    if (err) {
+      console.log(err)
+    };
   });
 };
 
@@ -226,7 +241,9 @@ function updateEmployeeManagerDb(id) {
   WHERE id = ?`;
 
   connection.query(updateDb, id, (err) => {
-      if (err) throw err;
+    if (err) {
+      console.log(err)
+    };
   });
 };
 
@@ -245,7 +262,9 @@ function removeDepartment(id) {
   const delDb = `DELETE FROM departments WHERE id = ?`;
 
   connection.query(delDb, id, (err) => {
-      if (err) throw err;
+    if (err) {
+      console.log(err)
+    };
   });
 }
 
@@ -253,7 +272,9 @@ function removeEmployee(id) {
   const delDb = `DELETE FROM employees WHERE id = ?`;
 
   connection.query(delDb, id, (err) => {
-      if (err) throw err;
+    if (err) {
+      console.log(err)
+    };
   });
 };
 
@@ -261,7 +282,9 @@ function removeRole(id) {
   const delDb = `DELETE FROM roles WHERE id = ?`;
 
   connection.query(delDb, id, (err) => {
-      if (err) throw err;
+    if (err) {
+      console.log(err)
+    };
   });
 };
 
@@ -603,5 +626,15 @@ async function selection() {
       break;
   };
 };
+
+function start(){
+  connection.connect((err) => {
+    if (err) {
+      console.log(err)
+    };
+    console.log('Connected!');
+    selection();
+  });
+}
 
 start();

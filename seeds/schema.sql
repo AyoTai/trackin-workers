@@ -1,18 +1,18 @@
-  DROP DATABASE IF EXISTS workersdb;
+DROP DATABASE IF EXISTS workersdb;
 CREATE DATABASE workersdb;
 
 USE workersdb;
 
 CREATE TABLE departments (
   id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(30) NOT NULL,
+  name VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE roles (
   id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(30) NOT NULL,
   salary DECIMAL NOT NULL,
-  department_id INTEGER,
+  department_id INTEGER
 );
 
 CREATE TABLE employees (
@@ -20,5 +20,5 @@ CREATE TABLE employees (
   first_name VARCHAR(30) NOT NULL,
   last_name VARCHAR(30) NOT NULL,
   role_id INTEGER,
-  manager_id INTEGER,
+  manager_id INTEGER
 );
